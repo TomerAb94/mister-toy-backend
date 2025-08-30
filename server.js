@@ -39,7 +39,7 @@ app.get('/api/toy', (req, res) => {
           .split(',')
           .filter((l) => l)
       : [],
-      sortBy: req.query.sortBy || '',
+    sortBy: req.query.sortBy || '',
   }
   toyService
     .query(filterBy)
@@ -59,6 +59,44 @@ app.get('/api/toy/:toyId', (req, res) => {
       loggerService.error(`Cannot get toy ${toyId}`, err)
       res.status(400).send(`cannot get toy ${toyId}`)
     })
+})
+
+app.post('/api/toy', (req, res) => {
+  const toy = req.body
+  toyService
+    .save(toy)
+    .then((savedToy) => res.send(savedToy))
+    .catch((err) => {
+      loggerService.error(`Cannot save toy`, err)
+      res.status(400).send(`Cannot save toy`)
+    })
+})
+
+app.put('/api/toy/:toyId', (req, res) => {
+  const toy = req.body
+  toyService
+    .save(toy)
+    .then((savedToy) => res.send(savedToy))
+    .catch((err) => {
+      loggerService.error(`Cannot save toy`, err)
+      res.status(400).send(`Cannot save toy`)
+    })
+})
+
+app.delete('/api/toy/:toyId', (req, res) => {
+  const { toyId } = req.params
+  toyService
+    .remove(toyId)
+    .then(() => res.send('Deleted successfully'))
+    .catch((err) => {
+      loggerService.error(`Cannot remove toy ${toyId}`, err)
+      res.status(400).send(`Cannot remove toy ${toyId}`)
+    })
+})
+
+// Fallback route
+app.get('/*all', (req, res) => {
+    res.sendFile(path.resolve('public/index.html'))
 })
 
 const PORT = process.env.PORT || 3030

@@ -1,7 +1,6 @@
 import fs from 'fs'
 import { utilService } from './util.service.js'
 import { loggerService } from './logger.service.js'
-import { log } from 'console'
 
 export const toyService = {
   query,
@@ -66,10 +65,10 @@ function remove(toyId, loggedinUser) {
   const idx = toys.findIndex((toy) => toy._id === toyId)
   if (idx === -1) return Promise.reject('No Such Toy')
 
-  const toy = toys[idx]
-  if (!loggedinUser.isAdmin && toy.owner._id !== loggedinUser._id) {
-    return Promise.reject('Not your toy')
-  }
+//   const toy = toys[idx]
+//   if (!loggedinUser.isAdmin && toy.owner._id !== loggedinUser._id) {
+//     return Promise.reject('Not your toy')
+//   }
   toys.splice(idx, 1)
   return _saveToysToFile()
 }
@@ -77,19 +76,31 @@ function remove(toyId, loggedinUser) {
 function save(toy, loggedinUser) {
   if (toy._id) {
     const toyToUpdate = toys.find((currToy) => currToy._id === toy._id)
-    if (!loggedinUser.isAdmin && toyToUpdate.owner._id !== loggedinUser._id) {
-      return Promise.reject('Not your toy')
-    }
+    // if (!loggedinUser.isAdmin && toyToUpdate.owner._id !== loggedinUser._id) {
+    //   return Promise.reject('Not your toy')
+    // }
     toyToUpdate.name = toy.name
-    toyToUpdate.speed = toy.speed
     toyToUpdate.price = toy.price
+    toyToUpdate.imgUrl = toy.imgUrl
+    toyToUpdate.labels = toy.labels
+    toyToUpdate.inStock = toy.inStock
+    
     toy = toyToUpdate
   } else {
-    toy._id = utilService.makeId()
-    toy.owner = loggedinUser
+    toy = {
+      _id: utilService.makeId(),
+      name: toy.name || '',
+      price: toy.price || 0,
+      imgUrl: toy.imgUrl || 'https://purepng.com/public/uploads/large/minion-toy-vbr.png',
+      labels: toy.labels || [],
+      inStock: toy.inStock || false,
+      createdAt: toy.createdAt || Date.now(),
+      ...toy  // This ensures any provided values override the defaults
+    }
+    // toy.owner = loggedinUser
     toys.push(toy)
   }
-  delete toy.owner.score
+//   delete toy.owner.score
   return _saveToysToFile().then(() => toy)
 }
 
