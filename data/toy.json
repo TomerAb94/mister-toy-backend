@@ -76,5 +76,14 @@
     ],
     "createdAt": 1755957979472,
     "inStock": true
+  },
+  {
+    "_id": "DZpeV",
+    "name": "kiko",
+    "price": 123,
+    "imgUrl": "https://purepng.com/public/uploads/large/minion-toy-vbr.png",
+    "labels": [],
+    "inStock": "true",
+    "createdAt": 1756562892236
   }
 ]

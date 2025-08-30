@@ -19,7 +19,7 @@ function query(filterBy = { txt: '' }) {
 
   //* Filter
 
-  if (filterBy.name) {
+  if (filterBy.txt) {
     const regex = new RegExp(filterBy.txt, 'i')
     toysToShow = toysToShow.filter((toy) => regex.test(toy.name))
   }
