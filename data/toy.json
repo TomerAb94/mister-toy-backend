@@ -85,5 +85,14 @@
     "labels": [],
     "inStock": "true",
     "createdAt": 1756562892236
+  },
+  {
+    "_id": "JMaJg",
+    "name": "Toti",
+    "price": 3232,
+    "imgUrl": "https://purepng.com/public/uploads/large/minion-toy-vbr.png",
+    "labels": [],
+    "inStock": false,
+    "createdAt": 1756564052108
   }
 ]
