@@ -5,8 +5,13 @@ export async function getToys(req, res) {
   try {
     const filterBy = {
       txt: req.query.txt || '',
-      maxPrice: req.query.price || Infinity,
-      inStock: req.query.inStock || '',
+      maxPrice: +req.query.price || Infinity,
+      inStock:
+        req.query.inStock === 'true'
+          ? true
+          : req.query.inStock === 'false'
+          ? false
+          : '',
       labels: Array.isArray(req.query.labels)
         ? req.query.labels
         : typeof req.query.labels === 'string'

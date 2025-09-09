@@ -18,9 +18,15 @@ async function query(filterBy = { txt: '' }) {
   try {
     const criteria = {
       name: { $regex: filterBy.txt, $options: 'i' },
-      maxPrice: { $lte: filterBy.price },
-    //   inStock: {}
+      price: { $lte: filterBy.maxPrice },
+      labels: { $in: filterBy.labels },
     }
+
+    if (filterBy.inStock !== '') {
+      criteria.inStock = { $eq: filterBy.inStock }
+    }
+    console.log(filterBy)
+
     const collection = await dbService.getCollection('toy')
     var toys = await collection.find(criteria).toArray()
     return toys
@@ -73,6 +79,9 @@ async function update(toy) {
     const toyToSave = {
       name: toy.name,
       price: toy.price,
+      labels: toy.labels,
+      inStock: toy.inStock,
+      img: toy.imgUrl,
     }
     const collection = await dbService.getCollection('toy')
     await collection.updateOne(
@@ -85,7 +94,6 @@ async function update(toy) {
     throw err
   }
 }
-
 // async function addToyMsg(toyId, msg) {
 // 	try {
 // 		msg.id = utilService.makeId()
