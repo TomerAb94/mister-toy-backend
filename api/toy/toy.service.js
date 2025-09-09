@@ -14,21 +14,27 @@ export const toyService = {
   // removeToyMsg,
 }
 
-async function query(filterBy = { txt: '' }) {
+async function query(filterBy = { txt: '' }, sortBy = {}) {
   try {
     const criteria = {
       name: { $regex: filterBy.txt, $options: 'i' },
       price: { $lte: filterBy.maxPrice },
-      labels: { $in: filterBy.labels },
     }
 
     if (filterBy.inStock !== '') {
       criteria.inStock = { $eq: filterBy.inStock }
     }
+
+    if (filterBy.labels?.length > 0) {
+      criteria.labels = { $in: filterBy.labels }
+    }
     console.log(filterBy)
+    console.log(sortBy)
+
+    const sort = sortBy.sortField ? { [sortBy.sortField]: sortBy.sortDir } : {}
 
     const collection = await dbService.getCollection('toy')
-    var toys = await collection.find(criteria).toArray()
+    var toys = await collection.find(criteria).sort(sort).toArray()
     return toys
   } catch (err) {
     logger.error('cannot find toys', err)

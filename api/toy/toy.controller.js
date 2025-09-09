@@ -20,9 +20,13 @@ export async function getToys(req, res) {
             .split(',')
             .filter((l) => l)
         : [],
-      sortBy: req.query.sortBy || '',
     }
-    const toys = await toyService.query(filterBy)
+    const sortBy = {
+      sortField: req.query.sortField || '',
+      sortDir: +req.query.sortDir || 1,
+    }
+
+    const toys = await toyService.query(filterBy, sortBy)
     res.json(toys)
   } catch (err) {
     logger.error('Failed to get toys', err)
