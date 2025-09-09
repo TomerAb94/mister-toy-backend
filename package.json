@@ -18,6 +18,8 @@
     "express": "^5.1.0",
     "follow-redirects": "^1.15.11",
     "fs": "^0.0.1-security",
-    "path": "^0.12.7"
+    "mongodb": "^6.19.0",
+    "path": "^0.12.7",
+    "url": "^0.11.4"
   }
 }

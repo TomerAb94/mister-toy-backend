@@ -1,105 +1,61 @@
-import path from 'path'
-import express from 'express'
+import express  from 'express'
 import cookieParser from 'cookie-parser'
-import cors from 'cors'
+import cors  from 'cors'
+import path, { dirname } from 'path'
+import { fileURLToPath } from 'url'
 
-import { toyService } from './services/toy.service.js'
-import { loggerService } from './services/logger.service.js'
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = dirname(__filename)
+
+import { logger } from './services/logger.service.js'
+logger.info('server.js loaded...')
 
 const app = express()
 
-const corsOptions = {
-  origin: [
-    'http://127.0.0.1:8080',
-    'http://localhost:8080',
-    'http://127.0.0.1:5173',
-    'http://localhost:5173',
-  ],
-  credentials: true,
-}
-
-// Express Config:
-app.use(express.static('public'))
-app.use(cors(corsOptions))
+// Express App Config
 app.use(cookieParser())
 app.use(express.json())
-app.set('query parser', 'extended')
+app.use(express.static('public'))
 
-//* REST API for "toys"
-app.get('/api/toy', (req, res) => {
-  const filterBy = {
-    txt: req.query.txt || '',
-    maxPrice: req.query.maxPrice || Infinity,
-    inStock: req.query.inStock || '',
-    labels: Array.isArray(req.query.labels)
-      ? req.query.labels
-      : typeof req.query.labels === 'string'
-      ? req.query.labels
-          .replace(/[\[\]'"]+/g, '')
-          .split(',')
-          .filter((l) => l)
-      : [],
-    sortBy: req.query.sortBy || '',
-  }
-  toyService
-    .query(filterBy)
-    .then((toys) => res.send(toys))
-    .catch((err) => {
-      loggerService.error('Cannot get toys', err)
-      res.status(400).send('cannot get toys')
-    })
-})
+if (process.env.NODE_ENV === 'production') {
+    // Express serve static files on production environment
+    app.use(express.static(path.resolve(__dirname, 'public')))
+    console.log('__dirname: ', __dirname)
+} else {
+    // Configuring CORS
+    // Make sure origin contains the url 
+    // your frontend dev-server is running on
+    const corsOptions = {
+        origin: [
+            'http://127.0.0.1:5173', 
+            'http://localhost:5173',
+            'http://127.0.0.1:3000', 
+            'http://localhost:3000',
+        ],
+        credentials: true
+    }
+    app.use(cors(corsOptions))
+}
 
-app.get('/api/toy/:toyId', (req, res) => {
-  const { toyId } = req.params
-  toyService
-    .getById(toyId)
-    .then((toy) => res.send(toy))
-    .catch((err) => {
-      loggerService.error(`Cannot get toy ${toyId}`, err)
-      res.status(400).send(`cannot get toy ${toyId}`)
-    })
-})
+// import { authRoutes } from './api/auth/auth.routes.js'
+// import { userRoutes } from './api/user/user.routes.js'
+import { toyRoutes } from './api/toy/toy.routes.js'
 
-app.post('/api/toy', (req, res) => {
-  const toy = req.body
-  toyService
-    .save(toy)
-    .then((savedToy) => res.send(savedToy))
-    .catch((err) => {
-      loggerService.error(`Cannot save toy`, err)
-      res.status(400).send(`Cannot save toy`)
-    })
-})
+// routes
+// app.use('/api/auth', authRoutes)
+// app.use('/api/user', userRoutes)
+app.use('/api/toy', toyRoutes)
 
-app.put('/api/toy/:toyId', (req, res) => {
-  const toy = req.body
-  toyService
-    .save(toy)
-    .then((savedToy) => res.send(savedToy))
-    .catch((err) => {
-      loggerService.error(`Cannot save toy`, err)
-      res.status(400).send(`Cannot save toy`)
-    })
-})
+// Make every unmatched server-side-route fall back to index.html
+// So when requesting http://localhost:3030/index.html/toy/123 it will still respond with
+// our SPA (single page app) (the index.html file) and allow vue-router to take it from there
 
-app.delete('/api/toy/:toyId', (req, res) => {
-  const { toyId } = req.params
-  toyService
-    .remove(toyId)
-    .then(() => res.send('Deleted successfully'))
-    .catch((err) => {
-      loggerService.error(`Cannot remove toy ${toyId}`, err)
-      res.status(400).send(`Cannot remove toy ${toyId}`)
-    })
-})
-
-// Fallback route
 app.get('/*all', (req, res) => {
     res.sendFile(path.resolve('public/index.html'))
 })
 
-const PORT = process.env.PORT || 3030
-app.listen(PORT, () =>
-  loggerService.info(`Server listening on port http://127.0.0.1:${PORT}/`)
-)
+const port = process.env.PORT || 3030
+
+app.listen(port, () => {
+    logger.info('Server is running on port: ' + port)
+})
