@@ -1,14 +1,17 @@
 import express from 'express'
-// import { requireAuth, requireAdmin } from '../../middlewares/requireAuth.middleware.js'
-// import { log } from '../../middlewares/logger.middleware.js'
+import {
+  requireAuth,
+  requireAdmin,
+} from '../../middlewares/requireAuth.middleware.js'
+import { log } from '../../middlewares/logger.middleware.js'
 import {
   getToys,
   getToyById,
   addToy,
   updateToy,
   removeToy,
-  // addToyMsg,
-  // removeToyMsg,
+  addToyMsg,
+  removeToyMsg,
 } from './toy.controller.js'
 
 export const toyRoutes = express.Router()
@@ -16,12 +19,11 @@ export const toyRoutes = express.Router()
 // middleware that is specific to this router
 // router.use(requireAuth)
 
-toyRoutes.get('/', getToys) //Todo: add log middleware
-toyRoutes.get('/:id', getToyById)
-toyRoutes.post('/', addToy) //Todo: add requireAuth middleware
-toyRoutes.put('/:id', updateToy) //Todo: add requireAuth middleware
-toyRoutes.delete('/:id', removeToy) //Todo: add requireAuth middleware
-// router.delete('/:id', requireAuth, requireAdmin, removeToy) 
+toyRoutes.get('/', getToys)
+toyRoutes.get('/:toyId', getToyById)
+toyRoutes.post('/', requireAdmin, addToy)
+toyRoutes.put('/:toyId', requireAdmin, updateToy)
+toyRoutes.delete('/:toyId', requireAdmin, removeToy)
 
-// toyRoutes.post('/:id/msg', addToyMsg) //Todo: add requireAuth middleware
-// toyRoutes.delete('/:id/msg/:msgId', removeToyMsg) //Todo: add requireAuth middleware
+toyRoutes.post('/:toyId/msg', requireAuth, addToyMsg)
+toyRoutes.delete('/:toyId/msg/:msgId', requireAuth, removeToyMsg)
